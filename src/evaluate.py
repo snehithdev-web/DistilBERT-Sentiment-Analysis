@@ -1,23 +1,15 @@
 import torch
 from tqdm import tqdm
 from transformers import AutoModelForSequenceClassification
+from torch.utils.data import DataLoader
 
 from config import (
     MODEL_DIR,
-    DEVICE
+    DEVICE,
+    BATCH_SIZE
 )
 
 from dataset import train_valid
-
-# ---------------------------------------
-# Use same subset as training
-# ---------------------------------------
-
-test_dataset = (
-    train_valid["test"]
-    .shuffle(seed=42)
-    .select(range(200))
-)
 
 print("=" * 60)
 print("Loading Trained Model...")
@@ -30,6 +22,12 @@ model = AutoModelForSequenceClassification.from_pretrained(
 model.to(DEVICE)
 model.eval()
 
+test_loader = DataLoader(
+    train_valid["test"],
+    batch_size=BATCH_SIZE,
+    shuffle=False
+)
+
 correct = 0
 total = 0
 
@@ -37,24 +35,27 @@ print("\nEvaluating Model...\n")
 
 with torch.no_grad():
 
-    for sample in tqdm(test_dataset):
+    for batch in tqdm(test_loader):
 
-        input_ids = sample["input_ids"].unsqueeze(0).to(DEVICE)
-        attention_mask = sample["attention_mask"].unsqueeze(0).to(DEVICE)
+        input_ids = batch["input_ids"].to(DEVICE)
 
-        label = sample["labels"].item()
+        attention_mask = batch["attention_mask"].to(DEVICE)
+
+        labels = batch["labels"].to(DEVICE)
 
         outputs = model(
             input_ids=input_ids,
             attention_mask=attention_mask
         )
 
-        prediction = outputs.logits.argmax(dim=1).item()
+        predictions = torch.argmax(
+            outputs.logits,
+            dim=1
+        )
 
-        if prediction == label:
-            correct += 1
+        correct += (predictions == labels).sum().item()
 
-        total += 1
+        total += labels.size(0)
 
 accuracy = correct / total
 

@@ -23,20 +23,8 @@ from dataset import (
 )
 
 # =====================================================
-# USE SMALL DATASET DURING DEVELOPMENT
+# Load Model
 # =====================================================
-
-train_valid["train"] = (
-    train_valid["train"]
-    .shuffle(seed=42)
-    .select(range(1000))
-)
-
-train_valid["test"] = (
-    train_valid["test"]
-    .shuffle(seed=42)
-    .select(range(200))
-)
 
 print("=" * 60)
 print("Loading Model...")
@@ -49,9 +37,15 @@ model = AutoModelForSequenceClassification.from_pretrained(
 
 model.to(DEVICE)
 
-print(f"Using Device : {DEVICE}")
-print(f"Training Samples : {len(train_valid['train'])}")
-print(f"Testing Samples  : {len(train_valid['test'])}")
+print("\nTraining Configuration")
+print("-" * 60)
+print(f"Device            : {DEVICE}")
+print(f"Training Samples  : {len(train_valid['train'])}")
+print(f"Testing Samples   : {len(train_valid['test'])}")
+print(f"Epochs            : {NUM_EPOCHS}")
+print(f"Batch Size        : {BATCH_SIZE}")
+print(f"Learning Rate     : {LEARNING_RATE}")
+print("-" * 60)
 
 # =====================================================
 # Metrics
@@ -61,7 +55,10 @@ def compute_metrics(eval_pred):
 
     logits, labels = eval_pred
 
-    predictions = np.argmax(logits, axis=1)
+    predictions = np.argmax(
+        logits,
+        axis=1
+    )
 
     accuracy = accuracy_score(
         labels,
@@ -82,7 +79,7 @@ training_args = TrainingArguments(
 
     overwrite_output_dir=True,
 
-    num_train_epochs=1,
+    num_train_epochs=NUM_EPOCHS,
 
     per_device_train_batch_size=BATCH_SIZE,
 
@@ -128,9 +125,17 @@ trainer = Trainer(
     compute_metrics=compute_metrics
 )
 
+# =====================================================
+# Train
+# =====================================================
+
 print("\nStarting Training...\n")
 
 trainer.train()
+
+# =====================================================
+# Save Model
+# =====================================================
 
 print("\nSaving Model...\n")
 
