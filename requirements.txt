@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+transformers
+torch
+pandas
+numpy
+scikit-learn
+datasets
+accelerate
