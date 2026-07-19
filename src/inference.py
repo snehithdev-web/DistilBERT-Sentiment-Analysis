@@ -6,7 +6,7 @@ from transformers import (
 )
 
 from config import (
-    MODEL_DIR,
+    HF_MODEL_ID,
     DEVICE
 )
 
@@ -17,7 +17,7 @@ from config import (
 print("Loading Tokenizer...")
 
 tokenizer = AutoTokenizer.from_pretrained(
-    MODEL_DIR
+    HF_MODEL_ID
 )
 
 # =====================================================
@@ -27,7 +27,7 @@ tokenizer = AutoTokenizer.from_pretrained(
 print("Loading Model...")
 
 model = AutoModelForSequenceClassification.from_pretrained(
-    MODEL_DIR
+    HF_MODEL_ID
 )
 
 model.to(DEVICE)

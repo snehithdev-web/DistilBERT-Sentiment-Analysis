@@ -8,9 +8,7 @@ __pycache__/
 *.pyd
 
 # Models
-models/
-checkpoints/
-
+modelss/
 # Dataset
 data/IMDB Dataset.csv
 
