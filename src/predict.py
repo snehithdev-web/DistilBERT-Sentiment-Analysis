@@ -1,5 +1,6 @@
 from inference import predict
 
+print("predict imported")
 print("=" * 60)
 print("DistilBERT Sentiment Analyzer")
 print("Type 'exit' to quit.")
